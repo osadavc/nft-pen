@@ -6,7 +6,11 @@
     "start": "next start"
   },
   "dependencies": {
+    "@types/nprogress": "^0.2.0",
+    "axios": "^0.26.1",
+    "cheerio": "^1.0.0-rc.10",
     "next": "latest",
+    "nprogress": "^0.2.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
   },
