@@ -25,11 +25,13 @@ const handler: NextApiHandler = async (req, res) => {
   const pageURL = `https://cdpn.io/${codepenUserName}/fullpage/${codepenId}`;
 
   const { data } = await axios.get(pageURL);
-  const $ = cheerio.load(data);
 
+  const $ = cheerio.load(data);
   const pageContent = $("iframe").attr("srcdoc");
 
-  res.send({ data: `${pageContent} <style>${scrollbarCss}</style>` });
+  res
+    .status(200)
+    .json({ data: `${pageContent} <style>${scrollbarCss}</style>` });
 };
 
 export default handler;
