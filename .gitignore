@@ -8,6 +8,8 @@ node_modules
 # testing
 /coverage
 
+artifacts/
+
 # next.js
 .next/
 out/

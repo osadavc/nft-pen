@@ -1,10 +1,12 @@
-// import { ethers } from "hardhat";
+import { ethers } from "hardhat";
 
 const main = async () => {
-  // const Greeter = await ethers.getContractFactory("Greeter");
-  // const greeter = await Greeter.deploy("Hello, Hardhat!");
-  // await greeter.deployed();
-  // console.log("Greeter deployed to:", greeter.address);
+  const CodePenNFT = await ethers.getContractFactory("CodePenNFT");
+  const codePenNFT = await CodePenNFT.deploy();
+
+  await codePenNFT.deployed();
+
+  console.log("CodePenNFT deployed to:", codePenNFT.address);
 };
 
 main().catch((error) => {
