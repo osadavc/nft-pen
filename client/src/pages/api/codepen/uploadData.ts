@@ -10,11 +10,13 @@ const handler: NextApiHandler = async (req, res) => {
     });
   }
 
-  const { htmlData } = req.body as {
+  const { htmlData, userName, NFTName } = req.body as {
     htmlData: string;
+    userName: string;
+    NFTName: string;
   };
 
-  if (!htmlData) {
+  if (!htmlData || !userName || !NFTName) {
     res.status(400).json({
       message: "Missing htmlData",
     });
@@ -25,13 +27,27 @@ const handler: NextApiHandler = async (req, res) => {
   const timestamp = Date.now();
 
   await fs.promises.writeFile(`public/codepens/${timestamp}.html`, htmlData);
-  const responseFromPinata = await pinataClient.pinFromFS(
+
+  const pinataImageUpload = await pinataClient.pinFromFS(
     `public/codepens/${timestamp}.html`
   );
+  const pinataMetaUpload = await pinataClient.pinJSONToIPFS({
+    attributes: [
+      {
+        trait_type: "User Name",
+        value: userName,
+      },
+    ],
+    description: `${NFTName} by ${userName}`,
+    image: `https://ipfs.io/ipfs/${pinataImageUpload.IpfsHash}`,
+    name: NFTName,
+  });
+
   await fs.promises.unlink(`public/codepens/${timestamp}.html`);
 
-  res.json({
-    fileURL: responseFromPinata.IpfsHash,
+  res.status(200).json({
+    imageURL: `https://ipfs.io/ipfs/${pinataImageUpload.IpfsHash}`,
+    metaDataURL: `https://ipfs.io/ipfs/${pinataMetaUpload.IpfsHash}`,
   });
 };
 

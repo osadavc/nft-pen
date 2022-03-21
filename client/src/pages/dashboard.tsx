@@ -5,13 +5,15 @@ import Header from "../components/Common/Header";
 import BgGradients from "../components/Common/BgGradients";
 
 const Dashboard = () => {
-  const inputRef = useRef<HTMLInputElement>(null);
+  const codePenURLInput = useRef<HTMLInputElement>(null);
+  const NFTNameInput = useRef<HTMLInputElement>(null);
 
   const [iframeContent, setIframeContent] = useState<{
     data: string;
-    fileURL?: string;
+    imageURL?: string;
+    metaDataURL?: string;
     penAuthor: string;
-  }>({ data: "", fileURL: "", penAuthor: "" });
+  }>({ data: "", imageURL: "", penAuthor: "" });
   const [screenWidth, setScreenWidth] = useState(0);
   const [iframeWidth, setIframeWidth] = useState(0);
 
@@ -38,13 +40,17 @@ const Dashboard = () => {
   };
 
   const populateIframe = async () => {
+    if (!codePenURLInput.current?.value.trim()) {
+      return;
+    }
+
     nprogress.start();
 
     try {
       const {
         data: { data, penAuthor },
       } = await axios.post("/api/codepen", {
-        codepenURL: inputRef.current?.value,
+        codepenURL: codePenURLInput.current?.value,
       });
 
       setIframeContent({ data, penAuthor });
@@ -58,13 +64,23 @@ const Dashboard = () => {
   };
 
   const mintNFT = async () => {
+    if (!NFTNameInput.current?.value.trim() || !iframeContent.data) {
+      return;
+    }
+
     const {
-      data: { fileURL },
+      data: { imageURL, metaDataURL },
     } = await axios.post("/api/codepen/uploadData", {
       htmlData: iframeContent.data,
+      userName: iframeContent.penAuthor,
+      NFTName: NFTNameInput.current?.value,
     });
 
-    setIframeContent((prevData) => ({ ...prevData, fileURL }));
+    setIframeContent((prevData) => ({
+      ...prevData,
+      imageURL,
+      metaDataURL,
+    }));
   };
 
   return (
@@ -89,9 +105,9 @@ const Dashboard = () => {
         <div className="mt-4 flex h-12 space-x-2">
           <input
             type="text"
-            className="grow rounded-md border border-zinc-300 px-4 font-bold"
+            className="grow rounded-md border border-zinc-300 bg-transparent px-4 font-bold"
             placeholder="Type Your CodePen Link Here"
-            ref={inputRef}
+            ref={codePenURLInput}
           />
           <button
             className="rounded-md border border-zinc-300 px-4 text-lg font-bold"
@@ -103,6 +119,7 @@ const Dashboard = () => {
 
         {iframeContent && (
           <div className="mt-5 space-y-2">
+            <input type="text" ref={NFTNameInput} />
             <p className="text-center text-sm font-medium">
               Above Is An Exact Preview About How Your NFT Would Look Like In
               NFT Marketplaces. Don't Proceed Anymore If The Preview Doesn't
