@@ -5,6 +5,13 @@ import { isCodePenURL } from "../../../utils/validation";
 import { scrollbarCss } from "../../../utils/scrollbarCss";
 
 const handler: NextApiHandler = async (req, res) => {
+  if (req.method != "POST") {
+    return res.status(405).json({
+      statusCode: 405,
+      message: "Method not allowed",
+    });
+  }
+
   const { codepenURL } = req.body as {
     codepenURL: string;
   };
@@ -26,12 +33,13 @@ const handler: NextApiHandler = async (req, res) => {
 
   const { data } = await axios.get(pageURL);
 
-  const $ = cheerio.load(data);
-  const pageContent = $("iframe").attr("srcdoc");
+  const codePenIframe = cheerio.load(data);
+  const pageContent = codePenIframe("iframe").attr("srcdoc");
 
-  res
-    .status(200)
-    .json({ data: `${pageContent} <style>${scrollbarCss}</style>` });
+  res.status(200).json({
+    data: `${pageContent} <style>${scrollbarCss}</style>`,
+    penAuthor: codepenUserName,
+  });
 };
 
 export default handler;

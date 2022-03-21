@@ -7,7 +7,11 @@ import BgGradients from "../components/Common/BgGradients";
 const Dashboard = () => {
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const [iframeContent, setIframeContent] = useState("");
+  const [iframeContent, setIframeContent] = useState<{
+    data: string;
+    fileURL?: string;
+    penAuthor: string;
+  }>({ data: "", fileURL: "", penAuthor: "" });
   const [screenWidth, setScreenWidth] = useState(0);
   const [iframeWidth, setIframeWidth] = useState(0);
 
@@ -38,12 +42,12 @@ const Dashboard = () => {
 
     try {
       const {
-        data: { data },
+        data: { data, penAuthor },
       } = await axios.post("/api/codepen", {
         codepenURL: inputRef.current?.value,
       });
 
-      setIframeContent(data);
+      setIframeContent({ data, penAuthor });
 
       setTimeout(() => {
         nprogress.done();
@@ -51,6 +55,16 @@ const Dashboard = () => {
     } catch (error: any) {
       nprogress.done();
     }
+  };
+
+  const mintNFT = async () => {
+    const {
+      data: { fileURL },
+    } = await axios.post("/api/codepen/uploadData", {
+      htmlData: iframeContent.data,
+    });
+
+    setIframeContent((prevData) => ({ ...prevData, fileURL }));
   };
 
   return (
@@ -62,12 +76,13 @@ const Dashboard = () => {
         style={{
           width: iframeWidth,
         }}
+        className="z-50"
       >
         <div className="mt-6 h-[500px] rounded-md border border-zinc-300">
           <iframe
             width={iframeWidth}
             height={500}
-            srcDoc={iframeContent}
+            srcDoc={iframeContent.data}
           ></iframe>
         </div>
 
@@ -93,7 +108,10 @@ const Dashboard = () => {
               NFT Marketplaces. Don't Proceed Anymore If The Preview Doesn't
               look good. Otherwise your NFT will look like 💩
             </p>
-            <button className="h-11 w-full rounded-md border border-zinc-300 font-bold">
+            <button
+              className="h-11 w-full rounded-md border border-zinc-300 font-bold"
+              onClick={mintNFT}
+            >
               Mint NFT
             </button>
           </div>
