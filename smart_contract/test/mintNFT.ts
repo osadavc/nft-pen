@@ -1,7 +1,7 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
 
-describe("MyNFT", function () {
+describe("CodePen NFT", function () {
   it("Should mint and transfer an NFT to someone", async function () {
     const CodePenNFT = await ethers.getContractFactory("CodePenNFT");
     const codePenNFT = await CodePenNFT.deploy();
