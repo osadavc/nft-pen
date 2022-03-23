@@ -6,7 +6,7 @@ import BgGradients from "../components/Common/BgGradients";
 import * as env from "../config";
 
 import { ethers } from "ethers";
-import CodePenNFT from "../artifacts/contracts/CodePenNFT.sol/CodePenNFT.json";
+import CodePenNFT from "../utils/CodePenNFT.json";
 
 const Dashboard = () => {
   const codePenURLInput = useRef<HTMLInputElement>(null);
