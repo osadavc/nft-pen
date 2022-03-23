@@ -5,16 +5,18 @@ interface ModalProps {
   isOpen: boolean;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
   className?: string;
+  customFalse?: boolean | null;
 }
 
 const Modal: FC<ModalProps> = ({
   children,
   isOpen,
   setIsOpen,
-  className: classes,
+  className,
+  customFalse,
 }) => {
   const closeModal = () => {
-    setIsOpen(false);
+    setIsOpen(customFalse ?? false);
   };
 
   return (
@@ -53,7 +55,7 @@ const Modal: FC<ModalProps> = ({
             leaveTo="opacity-0 scale-95"
           >
             <div
-              className={`my-8 inline-block w-full max-w-md transform overflow-hidden rounded-lg bg-white p-6 text-left align-middle shadow-sm transition-all ${classes}`}
+              className={`my-8 inline-block w-full max-w-md transform overflow-hidden rounded-lg bg-white p-6 text-left align-middle shadow-sm transition-all ${className}`}
             >
               {children}
             </div>

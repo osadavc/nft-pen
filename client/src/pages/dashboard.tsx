@@ -9,6 +9,8 @@ import { ethers } from "ethers";
 import CodePenNFT from "../utils/CodePenNFT.json";
 import Modal from "../components/Common/Modal";
 import MintModal from "../components/Dashboard/MintModal";
+import { WalletError } from "../types/walletError";
+import useMetamask from "../hooks/useMetamask";
 
 const Dashboard = () => {
   const codePenURLInput = useRef<HTMLInputElement>(null);
@@ -29,6 +31,8 @@ const Dashboard = () => {
 
   const [isNFTModalOpen, setIsNFTModalOpen] = useState(false);
 
+  const { walletError, setWalletError } = useMetamask();
+
   useEffect(() => {
     window.addEventListener("resize", onResize);
 
@@ -44,13 +48,6 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-    // TODO: Add a proper way to display this
-    if (!window.ethereum) {
-      alert("Please install MetaMask to use this app");
-    } else {
-      window.ethereum.request({ method: "eth_requestAccounts" });
-    }
-
     const provider = new ethers.providers.Web3Provider(window.ethereum as any);
     signerRef.current = provider.getSigner();
     contractRef.current = new ethers.Contract(
@@ -58,11 +55,6 @@ const Dashboard = () => {
       CodePenNFT.abi,
       signerRef.current
     );
-
-    (async () => {
-      const count = await contractRef.current?.nftCount();
-      console.log(parseInt(count));
-    })();
   }, []);
 
   useEffect(() => {
@@ -127,10 +119,6 @@ const Dashboard = () => {
     );
 
     await result.wait();
-    console.log(result);
-
-    const count = await contractRef.current?.nftCount();
-    console.log(parseInt(count));
   };
 
   return (
@@ -140,6 +128,16 @@ const Dashboard = () => {
 
       <Modal isOpen={isNFTModalOpen} setIsOpen={setIsNFTModalOpen}>
         <MintModal mintNFT={mintNFT} NFTNameInputRef={NFTNameInput} />
+      </Modal>
+
+      <Modal
+        isOpen={!!walletError}
+        setIsOpen={setWalletError as any}
+        customFalse={null}
+      >
+        {walletError != "loading" && (
+          <MintModal mintNFT={mintNFT} NFTNameInputRef={NFTNameInput} />
+        )}
       </Modal>
 
       <div
@@ -171,7 +169,7 @@ const Dashboard = () => {
           </button>
         </div>
 
-        {iframeContent && (
+        {iframeContent.data && (
           <div className="mt-5 space-y-2">
             <p className="text-center text-sm font-medium">
               Above Is An Exact Preview About How Your NFT Would Look Like In
