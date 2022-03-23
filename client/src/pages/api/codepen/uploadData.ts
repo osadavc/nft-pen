@@ -31,10 +31,8 @@ const handler: NextApiHandler = async (req, res) => {
   let browser: Browser | null = null;
 
   try {
-    await fs.promises.writeFile(
-      `../../../../public/codepens/${timestamp}.html`,
-      htmlData
-    );
+    await fs.promises.mkdir("public/codepens/", { recursive: true });
+    await fs.promises.writeFile(`public/codepens/${timestamp}.html`, htmlData);
 
     browser = await getBrowser();
     if (!browser) {
@@ -47,17 +45,16 @@ const handler: NextApiHandler = async (req, res) => {
       waitUntil: "networkidle0",
     });
     await page.screenshot({
-      path: `../../../../public/codepens/${timestamp}.png`,
+      path: `public/codepens/${timestamp}.png`,
     });
-
     await browser.close();
     browser = null;
 
     const pinataHTMLUpload = await pinataClient.pinFromFS(
-      `../../../../public/codepens/${timestamp}.html`
+      `public/codepens/${timestamp}.html`
     );
     const pinataImageUpload = await pinataClient.pinFromFS(
-      `../../../../public/codepens/${timestamp}.png`
+      `public/codepens/${timestamp}.png`
     );
 
     const pinataMetaUpload = await pinataClient.pinJSONToIPFS({
@@ -73,8 +70,8 @@ const handler: NextApiHandler = async (req, res) => {
       animation_url: `ipfs://${pinataHTMLUpload.IpfsHash}`,
     });
 
-    await fs.promises.unlink(`../../../../public/codepens/${timestamp}.html`);
-    await fs.promises.unlink(`../../../../public/codepens/${timestamp}.png`);
+    await fs.promises.unlink(`public/codepens/${timestamp}.html`);
+    await fs.promises.unlink(`public/codepens/${timestamp}.png`);
 
     res.status(200).json({
       imageURL: pinataHTMLUpload.IpfsHash,
