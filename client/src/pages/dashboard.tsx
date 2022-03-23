@@ -3,17 +3,25 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import nprogress from "nprogress";
 import Header from "../components/Common/Header";
 import BgGradients from "../components/Common/BgGradients";
+import * as env from "../config";
+
+import { ethers } from "ethers";
+import CodePenNFT from "../artifacts/contracts/CodePenNFT.sol/CodePenNFT.json";
 
 const Dashboard = () => {
   const codePenURLInput = useRef<HTMLInputElement>(null);
   const NFTNameInput = useRef<HTMLInputElement>(null);
+
+  const contractRef = useRef<ethers.Contract | null>(null);
+  const signerRef = useRef<ethers.Signer | null>(null);
 
   const [iframeContent, setIframeContent] = useState<{
     data: string;
     imageURL?: string;
     metaDataURL?: string;
     penAuthor: string;
-  }>({ data: "", imageURL: "", penAuthor: "" });
+    penId: string;
+  }>({ data: "", imageURL: "", penAuthor: "", penId: "" });
   const [screenWidth, setScreenWidth] = useState(0);
   const [iframeWidth, setIframeWidth] = useState(0);
 
@@ -29,6 +37,28 @@ const Dashboard = () => {
 
   useLayoutEffect(() => {
     setScreenWidth(window.innerWidth);
+  }, []);
+
+  useEffect(() => {
+    // TODO: Add a proper way to display this
+    if (!window.ethereum) {
+      alert("Please install MetaMask to use this app");
+    } else {
+      window.ethereum.request({ method: "eth_requestAccounts" });
+    }
+
+    const provider = new ethers.providers.Web3Provider(window.ethereum as any);
+    signerRef.current = provider.getSigner();
+    contractRef.current = new ethers.Contract(
+      env.contractAddress,
+      CodePenNFT.abi,
+      signerRef.current
+    );
+
+    (async () => {
+      const count = await contractRef.current?.nftCount();
+      console.log(parseInt(count));
+    })();
   }, []);
 
   useEffect(() => {
@@ -48,12 +78,12 @@ const Dashboard = () => {
 
     try {
       const {
-        data: { data, penAuthor },
+        data: { data, penAuthor, penId },
       } = await axios.post("/api/codepen", {
         codepenURL: codePenURLInput.current?.value,
       });
 
-      setIframeContent({ data, penAuthor });
+      setIframeContent({ data, penAuthor, penId });
 
       setTimeout(() => {
         nprogress.done();
@@ -73,6 +103,7 @@ const Dashboard = () => {
     } = await axios.post("/api/codepen/uploadData", {
       htmlData: iframeContent.data,
       userName: iframeContent.penAuthor,
+      penId: iframeContent.penId,
       NFTName: NFTNameInput.current?.value,
     });
 
@@ -81,6 +112,21 @@ const Dashboard = () => {
       imageURL,
       metaDataURL,
     }));
+
+    const connection = contractRef.current?.connect(signerRef.current!);
+    const result = await contractRef.current?.payToMint(
+      connection?.address,
+      metaDataURL,
+      {
+        value: ethers.utils.parseEther("0.0005"),
+      }
+    );
+
+    await result.wait();
+    console.log(result);
+
+    const count = await contractRef.current?.nftCount();
+    console.log(parseInt(count));
   };
 
   return (

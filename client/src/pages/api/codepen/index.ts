@@ -39,6 +39,7 @@ const handler: NextApiHandler = async (req, res) => {
   res.status(200).json({
     data: `${pageContent} <style>${scrollbarCss}</style>`,
     penAuthor: codepenUserName,
+    penId: codepenId,
   });
 };
 
