@@ -22,7 +22,10 @@ const MintModal: FC<MintModalProps> = ({ mintNFT, NFTNameInputRef }) => {
         className="mt-4 w-full rounded border border-gray-200 py-3 px-4"
         ref={NFTNameInputRef}
       />
-      <button className="mt-3 w-full rounded border border-gray-200 py-2 px-4 font-medium">
+      <button
+        className="mt-3 w-full rounded border border-gray-200 py-2 px-4 font-medium"
+        onClick={mintNFT}
+      >
         Mint NFT
       </button>
     </div>
