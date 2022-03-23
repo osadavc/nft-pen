@@ -6,6 +6,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@headlessui/react": "^1.5.0",
     "@metamask/providers": "^8.1.1",
     "@pinata/sdk": "^1.1.23",
     "@types/nprogress": "^0.2.0",

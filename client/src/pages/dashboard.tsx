@@ -7,6 +7,8 @@ import * as env from "../config";
 
 import { ethers } from "ethers";
 import CodePenNFT from "../utils/CodePenNFT.json";
+import Modal from "../components/Common/Modal";
+import MintModal from "../components/Dashboard/MintModal";
 
 const Dashboard = () => {
   const codePenURLInput = useRef<HTMLInputElement>(null);
@@ -24,6 +26,8 @@ const Dashboard = () => {
   }>({ data: "", imageURL: "", penAuthor: "", penId: "" });
   const [screenWidth, setScreenWidth] = useState(0);
   const [iframeWidth, setIframeWidth] = useState(0);
+
+  const [isNFTModalOpen, setIsNFTModalOpen] = useState(false);
 
   useEffect(() => {
     window.addEventListener("resize", onResize);
@@ -134,6 +138,10 @@ const Dashboard = () => {
       <Header />
       <BgGradients />
 
+      <Modal isOpen={isNFTModalOpen} setIsOpen={setIsNFTModalOpen}>
+        <MintModal mintNFT={mintNFT} NFTNameInputRef={NFTNameInput} />
+      </Modal>
+
       <div
         style={{
           width: iframeWidth,
@@ -165,7 +173,6 @@ const Dashboard = () => {
 
         {iframeContent && (
           <div className="mt-5 space-y-2">
-            <input type="text" ref={NFTNameInput} />
             <p className="text-center text-sm font-medium">
               Above Is An Exact Preview About How Your NFT Would Look Like In
               NFT Marketplaces. Don't Proceed Anymore If The Preview Doesn't
@@ -173,7 +180,9 @@ const Dashboard = () => {
             </p>
             <button
               className="h-11 w-full rounded-md border border-zinc-300 font-bold"
-              onClick={mintNFT}
+              onClick={() => {
+                setIsNFTModalOpen(true);
+              }}
             >
               Mint NFT
             </button>
