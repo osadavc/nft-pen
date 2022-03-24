@@ -1,6 +1,6 @@
 {
   "functions": {
-    "api/uploadData.ts": {
+    "src/pages/api/uploadData.ts": {
       "includeFiles": "public/**"
     }
   }
