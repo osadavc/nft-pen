@@ -31,8 +31,8 @@ const handler: NextApiHandler = async (req, res) => {
   let browser: Browser | null = null;
 
   try {
-    await fs.promises.mkdir("./codepens/", { recursive: true });
-    await fs.promises.writeFile(`./codepens/${timestamp}.html`, htmlData);
+    await fs.promises.mkdir("public/codepens/", { recursive: true });
+    await fs.promises.writeFile(`public/codepens/${timestamp}.html`, htmlData);
 
     browser = await getBrowser();
     if (!browser) {
@@ -45,37 +45,37 @@ const handler: NextApiHandler = async (req, res) => {
       waitUntil: "networkidle0",
     });
     await page.screenshot({
-      path: `./codepens/${timestamp}.png`,
+      path: `public/codepens/${timestamp}.png`,
     });
     await browser.close();
     browser = null;
 
-    // const pinataHTMLUpload = await pinataClient.pinFromFS(
-    //   `./codepens/${timestamp}.html`
-    // );
-    // const pinataImageUpload = await pinataClient.pinFromFS(
-    //   `./codepens/${timestamp}.png`
-    // );
+    const pinataHTMLUpload = await pinataClient.pinFromFS(
+      `public/codepens/${timestamp}.html`
+    );
+    const pinataImageUpload = await pinataClient.pinFromFS(
+      `public/codepens/${timestamp}.png`
+    );
 
-    // const pinataMetaUpload = await pinataClient.pinJSONToIPFS({
-    //   name: NFTName,
-    //   description: `${NFTName} by ${userName}`,
-    //   attributes: [
-    //     {
-    //       trait_type: "User Name",
-    //       value: userName,
-    //     },
-    //   ],
-    //   image: `ipfs://${pinataImageUpload.IpfsHash}`,
-    //   animation_url: `ipfs://${pinataHTMLUpload.IpfsHash}`,
-    // });
+    const pinataMetaUpload = await pinataClient.pinJSONToIPFS({
+      name: NFTName,
+      description: `${NFTName} by ${userName}`,
+      attributes: [
+        {
+          trait_type: "User Name",
+          value: userName,
+        },
+      ],
+      image: `ipfs://${pinataImageUpload.IpfsHash}`,
+      animation_url: `ipfs://${pinataHTMLUpload.IpfsHash}`,
+    });
 
-    await fs.promises.unlink(`./codepens/${timestamp}.html`);
-    await fs.promises.unlink(`./codepens/${timestamp}.png`);
+    await fs.promises.unlink(`public/codepens/${timestamp}.html`);
+    await fs.promises.unlink(`public/codepens/${timestamp}.png`);
 
     res.status(200).json({
-      // imageURL: pinataHTMLUpload.IpfsHash,
-      // metaDataURL: pinataMetaUpload.IpfsHash,
+      imageURL: pinataHTMLUpload.IpfsHash,
+      metaDataURL: pinataMetaUpload.IpfsHash,
     });
   } catch (error: any) {
     res.status(500).json({
