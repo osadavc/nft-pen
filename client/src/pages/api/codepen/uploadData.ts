@@ -1,8 +1,12 @@
 import { NextApiHandler } from "next";
 import fs from "fs";
+import path from "path";
+import getConfig from "next/config";
 import pinataClient from "../../../utils/pinataClient";
 import { Browser } from "puppeteer-core";
 import getBrowser from "../../../utils/getBrowser";
+
+const { serverRuntimeConfig } = getConfig();
 
 const handler: NextApiHandler = async (req, res) => {
   if (req.method != "POST") {
@@ -31,8 +35,14 @@ const handler: NextApiHandler = async (req, res) => {
   let browser: Browser | null = null;
 
   try {
-    await fs.promises.mkdir("public/codepens/", { recursive: true });
-    await fs.promises.writeFile(`public/codepens/${timestamp}.html`, htmlData);
+    // fs.writeFileSync(`public/codepens/${timestamp}.html`, htmlData);
+    fs.writeFileSync(
+      path.join(
+        serverRuntimeConfig.PROJECT_ROOT,
+        `./public/codepens/${timestamp}.html`
+      ),
+      htmlData
+    );
 
     browser = await getBrowser();
     if (!browser) {
@@ -44,38 +54,38 @@ const handler: NextApiHandler = async (req, res) => {
     await page.setContent(htmlData, {
       waitUntil: "networkidle0",
     });
-    await page.screenshot({
-      path: `public/codepens/${timestamp}.png`,
-    });
+    // await page.screenshot({
+    //   path: `public/codepens/${timestamp}.png`,
+    // });
     await browser.close();
     browser = null;
 
-    const pinataHTMLUpload = await pinataClient.pinFromFS(
-      `public/codepens/${timestamp}.html`
-    );
-    const pinataImageUpload = await pinataClient.pinFromFS(
-      `public/codepens/${timestamp}.png`
-    );
+    // const pinataHTMLUpload = await pinataClient.pinFromFS(
+    //   `public/codepens/${timestamp}.html`
+    // );
+    // const pinataImageUpload = await pinataClient.pinFromFS(
+    //   `public/codepens/${timestamp}.png`
+    // );
 
-    const pinataMetaUpload = await pinataClient.pinJSONToIPFS({
-      name: NFTName,
-      description: `${NFTName} by ${userName}`,
-      attributes: [
-        {
-          trait_type: "User Name",
-          value: userName,
-        },
-      ],
-      image: `ipfs://${pinataImageUpload.IpfsHash}`,
-      animation_url: `ipfs://${pinataHTMLUpload.IpfsHash}`,
-    });
+    // const pinataMetaUpload = await pinataClient.pinJSONToIPFS({
+    //   name: NFTName,
+    //   description: `${NFTName} by ${userName}`,
+    //   attributes: [
+    //     {
+    //       trait_type: "User Name",
+    //       value: userName,
+    //     },
+    //   ],
+    //   image: `ipfs://${pinataImageUpload.IpfsHash}`,
+    //   animation_url: `ipfs://${pinataHTMLUpload.IpfsHash}`,
+    // });
 
-    await fs.promises.unlink(`public/codepens/${timestamp}.html`);
-    await fs.promises.unlink(`public/codepens/${timestamp}.png`);
+    // await fs.promises.unlink(`public/codepens/${timestamp}.html`);
+    // await fs.promises.unlink(`public/codepens/${timestamp}.png`);
 
     res.status(200).json({
-      imageURL: pinataHTMLUpload.IpfsHash,
-      metaDataURL: pinataMetaUpload.IpfsHash,
+      // imageURL: pinataHTMLUpload.IpfsHash,
+      // metaDataURL: pinataMetaUpload.IpfsHash,
     });
   } catch (error: any) {
     res.status(500).json({
