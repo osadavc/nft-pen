@@ -36,6 +36,14 @@ const handler: NextApiHandler = async (req, res) => {
 
   try {
     // fs.writeFileSync(`public/codepens/${timestamp}.html`, htmlData);
+    fs.mkdirSync(
+      path.join(
+        serverRuntimeConfig.PROJECT_ROOT,
+        `./public/codepens/${timestamp}.html`
+      ),
+      { recursive: true }
+    );
+
     fs.writeFileSync(
       path.join(
         serverRuntimeConfig.PROJECT_ROOT,
