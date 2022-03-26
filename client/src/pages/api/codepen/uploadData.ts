@@ -1,8 +1,7 @@
 import { NextApiHandler } from "next";
-import fs from "fs";
-import pinataClient from "../../../utils/pinataClient";
 import { Browser } from "puppeteer-core";
 import getBrowser from "../../../utils/getBrowser";
+import { create } from "ipfs-http-client";
 
 const handler: NextApiHandler = async (req, res) => {
   if (req.method != "POST") {
@@ -27,13 +26,12 @@ const handler: NextApiHandler = async (req, res) => {
     return;
   }
 
-  const timestamp = getTimeStamp();
+  const ipfs = create({
+    url: "https://ipfs.infura.io:5001/api/v0",
+  });
   let browser: Browser | null = null;
 
   try {
-    await fs.promises.mkdir("public/codepens/", { recursive: true });
-    await fs.promises.writeFile(`public/codepens/${timestamp}.html`, htmlData);
-
     browser = await getBrowser();
     if (!browser) {
       throw new Error("Browser is null");
@@ -44,38 +42,33 @@ const handler: NextApiHandler = async (req, res) => {
     await page.setContent(htmlData, {
       waitUntil: "networkidle0",
     });
-    await page.screenshot({
-      path: `public/codepens/${timestamp}.png`,
-    });
+    const screenshot = await page.screenshot();
     await browser.close();
     browser = null;
 
-    const pinataHTMLUpload = await pinataClient.pinFromFS(
-      `public/codepens/${timestamp}.html`
-    );
-    const pinataImageUpload = await pinataClient.pinFromFS(
-      `public/codepens/${timestamp}.png`
-    );
+    const ipfsHtmlUpload = await ipfs.add(Buffer.from(htmlData));
+    const ipfsImageUpload = await ipfs.add(screenshot);
 
-    const pinataMetaUpload = await pinataClient.pinJSONToIPFS({
-      name: NFTName,
-      description: `${NFTName} by ${userName}`,
-      attributes: [
-        {
-          trait_type: "User Name",
-          value: userName,
-        },
-      ],
-      image: `ipfs://${pinataImageUpload.IpfsHash}`,
-      animation_url: `ipfs://${pinataHTMLUpload.IpfsHash}`,
-    });
-
-    await fs.promises.unlink(`public/codepens/${timestamp}.html`);
-    await fs.promises.unlink(`public/codepens/${timestamp}.png`);
+    const ipfsMetaUpload = await ipfs.add(
+      Buffer.from(
+        JSON.stringify({
+          name: NFTName,
+          description: `${NFTName} by ${userName}`,
+          attributes: [
+            {
+              trait_type: "Created By",
+              value: userName,
+            },
+          ],
+          image: `ipfs://${ipfsHtmlUpload.path}`,
+          animation_url: `ipfs://${ipfsImageUpload.path}`,
+        })
+      )
+    );
 
     res.status(200).json({
-      imageURL: pinataHTMLUpload.IpfsHash,
-      metaDataURL: pinataMetaUpload.IpfsHash,
+      imageURL: ipfsImageUpload.path,
+      metaDataURL: ipfsMetaUpload.path,
     });
   } catch (error: any) {
     res.status(500).json({
@@ -88,7 +81,5 @@ const handler: NextApiHandler = async (req, res) => {
     }
   }
 };
-
-const getTimeStamp = () => Date.now();
 
 export default handler;
