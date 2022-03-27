@@ -8,6 +8,7 @@ const useMetamask = () => {
     (async () => {
       if (!window.ethereum) {
         setWalletError("no_wallet");
+        return;
       } else {
         try {
           const accounts = (await window.ethereum.request({
@@ -16,25 +17,39 @@ const useMetamask = () => {
 
           if (parseInt(window.ethereum.chainId ?? "") != 80001) {
             setWalletError("wrong_network");
+            return;
           }
-
-          window.ethereum.on("chainChanged", (_chainId) => {
-            if (parseInt(_chainId as string) != 80001) {
-              setWalletError("wrong_network");
-            }
-          });
 
           if (accounts?.length > 0) {
             setWalletError(null);
+            return;
           }
         } catch (error) {
-          setWalletError("no_wallet");
+          setWalletError("not_connected");
+          return;
         }
       }
     })();
   }, []);
 
-  return { walletError, setWalletError };
+  useEffect(() => {
+    window.ethereum.on("chainChanged", (_chainId) => {
+      if (parseInt(_chainId as string) != 80001) {
+        setWalletError("wrong_network");
+      } else {
+        setWalletError(null);
+      }
+    });
+  }, []);
+
+  const switchToPolygon = () => {
+    return window.ethereum.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: "0x13881" }],
+    });
+  };
+
+  return { walletError, setWalletError, switchToPolygon };
 };
 
 export default useMetamask;

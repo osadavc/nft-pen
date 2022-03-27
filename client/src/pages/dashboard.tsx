@@ -11,6 +11,7 @@ import Modal from "../components/Common/Modal";
 import MintModal from "../components/Dashboard/MintModal";
 import { WalletError } from "../types/walletError";
 import useMetamask from "../hooks/useMetamask";
+import WalletInfoModal from "../components/Dashboard/WalletInfoModal";
 
 const Dashboard = () => {
   const codePenURLInput = useRef<HTMLInputElement>(null);
@@ -31,7 +32,7 @@ const Dashboard = () => {
 
   const [isNFTModalOpen, setIsNFTModalOpen] = useState(false);
 
-  const { walletError, setWalletError } = useMetamask();
+  const { walletError, setWalletError, switchToPolygon } = useMetamask();
 
   useEffect(() => {
     window.addEventListener("resize", onResize);
@@ -58,7 +59,7 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-    setIframeWidth(screenWidth > 600 ? 582 : screenWidth - 50);
+    setIframeWidth(screenWidth > 600 ? 500 : screenWidth - 50);
   }, [screenWidth]);
 
   const onResize = () => {
@@ -134,10 +135,14 @@ const Dashboard = () => {
         isOpen={!!walletError}
         setIsOpen={setWalletError as any}
         customFalse={null}
+        unClosable
       >
-        {walletError != "loading" && (
-          <MintModal mintNFT={mintNFT} NFTNameInputRef={NFTNameInput} />
-        )}
+        <div className="z-[2000] flex flex-col items-center justify-center">
+          <WalletInfoModal
+            walletError={walletError}
+            switchToPolygon={switchToPolygon}
+          />
+        </div>
       </Modal>
 
       <div

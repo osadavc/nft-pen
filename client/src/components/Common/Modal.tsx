@@ -6,6 +6,7 @@ interface ModalProps {
   setIsOpen: Dispatch<SetStateAction<boolean>>;
   className?: string;
   customFalse?: boolean | null;
+  unClosable?: boolean;
 }
 
 const Modal: FC<ModalProps> = ({
@@ -14,6 +15,7 @@ const Modal: FC<ModalProps> = ({
   setIsOpen,
   className,
   customFalse,
+  unClosable,
 }) => {
   const closeModal = () => {
     setIsOpen(customFalse ?? false);
@@ -24,7 +26,7 @@ const Modal: FC<ModalProps> = ({
       <Dialog
         as="div"
         className="fixed inset-0 z-[60] overflow-y-auto"
-        onClose={closeModal}
+        onClose={!unClosable ? closeModal : () => {}}
       >
         <div className="min-h-screen px-4 text-center">
           <Transition.Child
