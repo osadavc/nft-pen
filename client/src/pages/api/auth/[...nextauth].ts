@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 
 import * as env from "config";
 import { JWT } from "next-auth/jwt";
+import apolloClient from "utils/apolloClient";
 
 export default NextAuth({
   providers: [
@@ -31,6 +32,9 @@ export default NextAuth({
       jwt.verify(token!, secret, { algorithms: ["HS256"] }) as JWT,
   },
   callbacks: {
+    async signIn({ user }) {
+      return true;
+    },
     async session({ session, token }) {
       const encodedToken = jwt.sign(token, env.nextauthSecret, {
         algorithm: "HS256",

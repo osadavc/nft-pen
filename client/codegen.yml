@@ -1,0 +1,16 @@
+overwrite: true
+schema:
+  - ${GRAPHQL_ENDPOINT}:
+    headers:
+      Authorization: Bearer ${SCHEMA_PATH}
+documents: "src/graphql/**/*.ts"
+generates:
+  src/graphql/graphql.ts:
+    plugins:
+      - "typescript"
+  .:
+    preset: near-operation-file
+    presetConfig:
+      baseTypesPath: "src/graphql/graphql.ts"
+    plugins:
+      - "typescript-operations"
