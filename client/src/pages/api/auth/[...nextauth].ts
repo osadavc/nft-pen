@@ -38,6 +38,7 @@ export default NextAuth({
 
       session.id = token.id;
       session.token = encodedToken;
+
       return Promise.resolve(session);
     },
     async jwt({ token, user }) {

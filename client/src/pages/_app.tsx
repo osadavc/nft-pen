@@ -4,6 +4,8 @@ import Head from "next/head";
 import "nprogress/nprogress.css";
 import { MetaMaskInpageProvider } from "@metamask/providers";
 import { SessionProvider } from "next-auth/react";
+import { ApolloProvider } from "@apollo/client";
+import apolloClient from "utils/apolloClient";
 
 declare global {
   interface Window {
@@ -17,10 +19,12 @@ const MyApp = ({
 }: AppProps) => {
   return (
     <SessionProvider session={session}>
-      <Head>
-        <title>NFT Pen | Mint Your Code Pens As NFTs</title>
-      </Head>
-      <Component {...pageProps} />
+      <ApolloProvider client={apolloClient}>
+        <Head>
+          <title>NFT Pen | Mint Your Code Pens As NFTs</title>
+        </Head>
+        <Component {...pageProps} />
+      </ApolloProvider>
     </SessionProvider>
   );
 };
