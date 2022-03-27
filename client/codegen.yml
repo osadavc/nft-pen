@@ -1,8 +1,8 @@
 overwrite: true
 schema:
   - ${GRAPHQL_ENDPOINT}:
-    headers:
-      Authorization: "Bearer ${HASURA_ADMIN_KEY}"
+      headers:
+        "x-hasura-admin-secret": ${HASURA_ADMIN_KEY}
 documents: "src/graphql/**/*.ts"
 generates:
   src/graphql/graphql.ts:
