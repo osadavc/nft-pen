@@ -1,0 +1,12 @@
+mutation AddNewUser(
+  $email: String!
+  $id: String!
+  $name: String!
+  $picture: String!
+) {
+  insert_users_one(
+    object: { email: $email, id: $id, name: $name, picture: $picture }
+  ) {
+    id
+  }
+}

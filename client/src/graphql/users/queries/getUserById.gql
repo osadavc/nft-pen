@@ -1,0 +1,7 @@
+query GetUserById($id: String!) {
+  users_by_pk(id: $id) {
+    email
+    id
+    name
+  }
+}

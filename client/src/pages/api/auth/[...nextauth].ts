@@ -6,6 +6,18 @@ import * as env from "config";
 import { JWT } from "next-auth/jwt";
 import apolloClient from "utils/apolloClient";
 
+import {
+  AddNewUserMutation,
+  AddNewUserMutationVariables,
+} from "graphql/users/mutations/addNewUser.generated";
+import {
+  GetUserByIdQuery,
+  GetUserByIdQueryVariables,
+} from "graphql/users/queries/getUserById.generated";
+
+import addNewUser from "graphql/users/mutations/addNewUser.gql";
+import getUserById from "graphql/users/queries/getUserById.gql";
+
 export default NextAuth({
   providers: [
     GoogleProvider({
@@ -33,7 +45,38 @@ export default NextAuth({
   },
   callbacks: {
     async signIn({ user }) {
-      return true;
+      try {
+        const existingUser = await apolloClient.query<
+          GetUserByIdQuery,
+          GetUserByIdQueryVariables
+        >({
+          query: getUserById,
+          variables: {
+            id: user.id,
+          },
+        });
+
+        if (existingUser.data.users_by_pk?.id) {
+          return true;
+        }
+
+        const updatedUser = await apolloClient.mutate<
+          AddNewUserMutation,
+          AddNewUserMutationVariables
+        >({
+          mutation: addNewUser,
+          variables: {
+            email: user.email ?? "",
+            id: user.id,
+            name: user.name ?? "",
+            picture: user.image ?? "",
+          },
+        });
+
+        return !!updatedUser.data?.insert_users_one?.id;
+      } catch (error) {
+        return false;
+      }
     },
     async session({ session, token }) {
       const encodedToken = jwt.sign(token, env.nextauthSecret, {

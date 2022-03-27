@@ -8,7 +8,7 @@ import * as env from "config";
 const errorLink = onError(({ graphQLErrors }) => {
   if (graphQLErrors) {
     graphQLErrors.map(({ message }) => {
-      // TODO: Handle Error
+      // TODO: Handle Errors
     });
   }
 });
@@ -20,6 +20,7 @@ const authLink = setContext(async (_, { headers }: { headers: Headers }) => {
     headers: {
       ...headers,
       authorization: session?.token ? `Bearer ${session.token}` : "",
+      "x-hasura-admin-secret": env.hasuraAdminKey,
     },
   };
   return modifiedHeader;
