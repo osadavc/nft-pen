@@ -1,5 +1,5 @@
 import { NextApiHandler } from "next";
-import { Browser } from "puppeteer-core";
+import { Browser } from "puppeteer";
 import getBrowser from "../../../utils/getBrowser";
 import { create } from "ipfs-http-client";
 
@@ -38,7 +38,6 @@ const handler: NextApiHandler = async (req, res) => {
     }
 
     const page = await browser.newPage();
-    await page.setViewport({ height: 500, width: 500 });
     await page.setContent(htmlData, {
       waitUntil: "networkidle0",
     });

@@ -1,31 +1,13 @@
-import chromium from "chrome-aws-lambda";
+import puppeteer from "puppeteer";
 
 const getBrowser = async () => {
-  const executablePath = await chromium.executablePath;
-
-  if (!executablePath) {
-    const puppeteer = require("puppeteer");
-
-    return puppeteer.launch({
-      args: chromium.args,
-      headless: false,
-      defaultViewport: {
-        width: 1280,
-        height: 720,
-      },
-      ignoreHTTPSErrors: true,
-    });
-  }
-
-  return chromium.puppeteer.launch({
-    args: chromium.args,
+  return puppeteer.launch({
+    headless: true,
+    args: ["--no-sandbox"],
     defaultViewport: {
-      width: 1280,
-      height: 720,
+      height: 500,
+      width: 500,
     },
-    executablePath,
-    headless: chromium.headless,
-    ignoreHTTPSErrors: true,
   });
 };
 
