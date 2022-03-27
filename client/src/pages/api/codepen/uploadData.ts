@@ -59,8 +59,8 @@ const handler: NextApiHandler = async (req, res) => {
               value: userName,
             },
           ],
-          image: `ipfs://${ipfsHtmlUpload.path}`,
-          animation_url: `ipfs://${ipfsImageUpload.path}`,
+          image: `ipfs://${ipfsImageUpload.path}`,
+          animation_url: `ipfs://${ipfsHtmlUpload.path}`,
         })
       )
     );
