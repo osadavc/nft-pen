@@ -1,4 +1,5 @@
 import { Dialog } from "@headlessui/react";
+import Spinner from "components/Common/Spinner";
 import { FC } from "react";
 import { WalletError } from "../../types/walletError";
 
@@ -13,9 +14,13 @@ const WalletInfoModal: FC<WalletInfoModalProps> = ({
 }) => {
   return (
     <div className="z-[2000] flex flex-col items-center justify-center">
-      <Dialog.Title as="h2" className="text-xl font-semibold">
-        {walletError != "loading" ? "Wallet Error" : "Loading"}
-      </Dialog.Title>
+      {walletError && (
+        <Dialog.Title as="h2" className="text-xl font-semibold">
+          {walletError != "loading" ? "Wallet Error" : "Loading"}
+        </Dialog.Title>
+      )}
+
+      {!walletError && <Spinner />}
 
       {walletError == "loading" && (
         <Dialog.Description className="mt-3 text-center capitalize">

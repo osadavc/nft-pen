@@ -61,7 +61,7 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-    setIframeWidth(screenWidth > 600 ? 500 : screenWidth - 50);
+    setIframeWidth(screenWidth > 510 ? 500 : screenWidth - 50);
   }, [screenWidth]);
 
   const onResize = () => {
@@ -154,11 +154,19 @@ const Dashboard = () => {
         className="z-50"
       >
         <div className="mt-6 h-[500px] rounded-md border border-zinc-300">
-          <iframe
-            width={iframeWidth}
-            height={500}
-            srcDoc={iframeContent.data}
-          ></iframe>
+          {iframeContent.data ? (
+            <iframe
+              width={iframeWidth}
+              height={500}
+              srcDoc={iframeContent.data}
+            ></iframe>
+          ) : (
+            <div className="flex h-full items-center justify-center">
+              <h3 className="w-[75%] text-center text-xs font-semibold text-gray-500">
+                No Pen Fetched, Fetch Your CodePen Details With The Input Below
+              </h3>
+            </div>
+          )}
         </div>
 
         <div className="mt-4 flex h-12 space-x-2">
