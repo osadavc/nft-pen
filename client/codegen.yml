@@ -2,7 +2,7 @@ overwrite: true
 schema:
   - ${GRAPHQL_ENDPOINT}:
     headers:
-      Authorization: Bearer ${SCHEMA_PATH}
+      Authorization: "Bearer ${HASURA_ADMIN_KEY}"
 documents: "src/graphql/**/*.ts"
 generates:
   src/graphql/graphql.ts:
