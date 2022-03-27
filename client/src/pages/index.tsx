@@ -1,4 +1,5 @@
-import type { NextPage } from "next";
+import type { GetServerSideProps, NextPage } from "next";
+import { getSession } from "next-auth/react";
 import BgGradients from "../components/Common/BgGradients";
 import Footer from "../components/Common/Footer";
 import Header from "../components/Common/Header";
@@ -15,6 +16,14 @@ const Home: NextPage = () => {
       </div>
     </div>
   );
+};
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  return {
+    props: {
+      session: await getSession(context),
+    },
+  };
 };
 
 export default Home;

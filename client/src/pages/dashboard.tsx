@@ -12,6 +12,8 @@ import MintModal from "../components/Dashboard/MintModal";
 import { WalletError } from "../types/walletError";
 import useMetamask from "../hooks/useMetamask";
 import WalletInfoModal from "../components/Dashboard/WalletInfoModal";
+import { GetServerSideProps } from "next";
+import { getSession } from "next-auth/react";
 
 const Dashboard = () => {
   const codePenURLInput = useRef<HTMLInputElement>(null);
@@ -194,6 +196,25 @@ const Dashboard = () => {
       </div>
     </div>
   );
+};
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const session = await getSession(context);
+
+  if (!session) {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
+  }
+
+  return {
+    props: {
+      session,
+    },
+  };
 };
 
 export default Dashboard;

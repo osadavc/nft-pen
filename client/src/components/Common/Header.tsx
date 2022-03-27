@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
 import Button from "./Button";
+import { signIn, signOut, useSession } from "next-auth/react";
 
 const Header = () => {
   const router = useRouter();
+  const { data: session } = useSession();
 
   const isDashboard = router.pathname === "/dashboard";
 
@@ -18,20 +20,34 @@ const Header = () => {
       <div className="mt-5 flex space-x-3 from-teal-700 via-red-600 to-zinc-50">
         {!isDashboard ? (
           <>
-            <Button
-              onClick={() => {
-                router.push("/dashboard");
-              }}
-            >
-              Login With Google
-            </Button>
+            {session ? (
+              <Button
+                onClick={() => {
+                  router.push("/dashboard");
+                }}
+              >
+                Go To Dashboard
+              </Button>
+            ) : (
+              <Button
+                onClick={() => {
+                  signIn("google", {
+                    callbackUrl: `${window.location.origin}/dashboard`,
+                  });
+                }}
+              >
+                Login With Google
+              </Button>
+            )}
             <Button onClick={() => {}}>NFT Collection</Button>
           </>
         ) : (
           <>
             <Button
               onClick={() => {
-                router.push("/dashboard");
+                signOut({
+                  callbackUrl: `${window.location.origin}`,
+                });
               }}
             >
               Log Out
