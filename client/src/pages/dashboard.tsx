@@ -1,11 +1,12 @@
 import axios from "axios";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import nprogress from "nprogress";
 import Header from "../components/Common/Header";
 import BgGradients from "../components/Common/BgGradients";
 import * as env from "../config";
 
 import { ethers } from "ethers";
+import web3 from "web3";
 import CodePenNFT from "../utils/CodePenNFT.json";
 import Modal from "../components/Common/Modal";
 import MintModal from "../components/Dashboard/MintModal";
@@ -14,6 +15,9 @@ import WalletInfoModal from "../components/Dashboard/WalletInfoModal";
 import { GetServerSideProps } from "next";
 import { getSession } from "next-auth/react";
 import { IFrameContent } from "types/iframeContent";
+
+import addNewCodePenMutation from "graphql/codepens/mutations/addNewCodePen.gql";
+import { useMutation } from "@apollo/client";
 
 const Dashboard = () => {
   const codePenURLInput = useRef<HTMLInputElement>(null);
@@ -30,10 +34,11 @@ const Dashboard = () => {
   });
   const [screenWidth, setScreenWidth] = useState(0);
   const [iframeWidth, setIframeWidth] = useState(0);
-
   const [isNFTModalOpen, setIsNFTModalOpen] = useState(false);
 
   const { walletError, setWalletError, switchToPolygon } = useMetamask();
+
+  const [addNewUser] = useMutation(addNewCodePenMutation);
 
   useEffect(() => {
     window.addEventListener("resize", onResize);

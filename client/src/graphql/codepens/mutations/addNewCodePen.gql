@@ -1,0 +1,22 @@
+mutation AddNewCodePen(
+  $nftId: Int!
+  $penAuthor: String!
+  $penId: String!
+  $penTitle: String!
+) {
+  insert_codepens_one(
+    object: {
+      nftId: $nftId
+      penAuthor: $penAuthor
+      penId: $penId
+      penTitle: $penTitle
+    }
+  ) {
+    createdBy
+    id
+    nftId
+    penAuthor
+    penId
+    penTitle
+  }
+}
