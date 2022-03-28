@@ -1,12 +1,18 @@
 import { Dialog } from "@headlessui/react";
-import { FC } from "react";
+import { Dispatch, FC, SetStateAction } from "react";
+import { IFrameContent } from "types/iframeContent";
 
 interface MintModalProps {
   mintNFT: () => void;
-  NFTNameInputRef: React.Ref<HTMLInputElement>;
+  iframeContent: IFrameContent;
+  setIframeContent: Dispatch<SetStateAction<IFrameContent>>;
 }
 
-const MintModal: FC<MintModalProps> = ({ mintNFT, NFTNameInputRef }) => {
+const MintModal: FC<MintModalProps> = ({
+  mintNFT,
+  iframeContent,
+  setIframeContent,
+}) => {
   return (
     <div className="z-[2000] flex flex-col items-center justify-center">
       <Dialog.Title as="h2" className="text-xl font-semibold">
@@ -16,11 +22,20 @@ const MintModal: FC<MintModalProps> = ({ mintNFT, NFTNameInputRef }) => {
         type a name for your NFT and click on mint button
       </Dialog.Description>
 
+      <label className="mt-4 mb-1 ml-2 w-full text-left font-semibold">
+        NFT Name
+      </label>
       <input
         type="text"
-        placeholder="NFT Name"
-        className="mt-4 w-full rounded border border-gray-200 py-3 px-4"
-        ref={NFTNameInputRef}
+        className="w-full rounded border border-gray-200 py-3 px-4"
+        placeholder="Type Your NFT Name Here"
+        value={iframeContent.penTitle}
+        onChange={(e) => {
+          setIframeContent((prevState) => ({
+            ...prevState,
+            penTitle: e.target.value,
+          }));
+        }}
       />
       <button
         className="mt-3 w-full rounded border border-gray-200 py-2 px-4 font-medium"

@@ -36,10 +36,14 @@ const handler: NextApiHandler = async (req, res) => {
   const codePenIframe = cheerio.load(data);
   const pageContent = codePenIframe("iframe").attr("srcdoc");
 
+  const codePenIframeContent = cheerio.load(pageContent ?? "");
+  const penTitle = codePenIframeContent("title").text().split(" - ")[1];
+
   res.status(200).json({
     data: `${pageContent} <style>${scrollbarCss}</style>`,
     penAuthor: codepenUserName,
     penId: codepenId,
+    penTitle,
   });
 };
 

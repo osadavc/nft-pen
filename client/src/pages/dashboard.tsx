@@ -9,26 +9,25 @@ import { ethers } from "ethers";
 import CodePenNFT from "../utils/CodePenNFT.json";
 import Modal from "../components/Common/Modal";
 import MintModal from "../components/Dashboard/MintModal";
-import { WalletError } from "../types/walletError";
 import useMetamask from "../hooks/useMetamask";
 import WalletInfoModal from "../components/Dashboard/WalletInfoModal";
 import { GetServerSideProps } from "next";
 import { getSession } from "next-auth/react";
+import { IFrameContent } from "types/iframeContent";
 
 const Dashboard = () => {
   const codePenURLInput = useRef<HTMLInputElement>(null);
-  const NFTNameInput = useRef<HTMLInputElement>(null);
 
   const contractRef = useRef<ethers.Contract | null>(null);
   const signerRef = useRef<ethers.Signer | null>(null);
 
-  const [iframeContent, setIframeContent] = useState<{
-    data: string;
-    htmlURL?: string;
-    metaDataURL?: string;
-    penAuthor: string;
-    penId: string;
-  }>({ data: "", htmlURL: "", penAuthor: "", penId: "" });
+  const [iframeContent, setIframeContent] = useState<IFrameContent>({
+    data: "",
+    htmlURL: "",
+    penAuthor: "",
+    penId: "",
+    penTitle: "",
+  });
   const [screenWidth, setScreenWidth] = useState(0);
   const [iframeWidth, setIframeWidth] = useState(0);
 
@@ -46,7 +45,7 @@ const Dashboard = () => {
 
   // FIXME: A problem with mobile layouts
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     setScreenWidth(window.innerWidth);
   }, []);
 
@@ -77,12 +76,12 @@ const Dashboard = () => {
 
     try {
       const {
-        data: { data, penAuthor, penId },
+        data: { data, penAuthor, penId, penTitle },
       } = await axios.post("/api/codepen", {
         codepenURL: codePenURLInput.current?.value,
       });
 
-      setIframeContent({ data, penAuthor, penId });
+      setIframeContent({ data, penAuthor, penId, penTitle });
 
       setTimeout(() => {
         nprogress.done();
@@ -93,7 +92,7 @@ const Dashboard = () => {
   };
 
   const mintNFT = async () => {
-    if (!NFTNameInput.current?.value.trim() || !iframeContent.data) {
+    if (!iframeContent.penTitle.trim() || !iframeContent.data) {
       return;
     }
 
@@ -103,7 +102,7 @@ const Dashboard = () => {
       htmlData: iframeContent.data,
       userName: iframeContent.penAuthor,
       penId: iframeContent.penId,
-      NFTName: NFTNameInput.current?.value,
+      NFTName: iframeContent.penTitle,
     });
 
     setIframeContent((prevData) => ({
@@ -130,7 +129,11 @@ const Dashboard = () => {
       <BgGradients />
 
       <Modal isOpen={isNFTModalOpen} setIsOpen={setIsNFTModalOpen}>
-        <MintModal mintNFT={mintNFT} NFTNameInputRef={NFTNameInput} />
+        <MintModal
+          mintNFT={mintNFT}
+          iframeContent={iframeContent}
+          setIframeContent={setIframeContent}
+        />
       </Modal>
 
       <Modal
