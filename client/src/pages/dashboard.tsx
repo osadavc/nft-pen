@@ -24,11 +24,11 @@ const Dashboard = () => {
 
   const [iframeContent, setIframeContent] = useState<{
     data: string;
-    imageURL?: string;
+    htmlURL?: string;
     metaDataURL?: string;
     penAuthor: string;
     penId: string;
-  }>({ data: "", imageURL: "", penAuthor: "", penId: "" });
+  }>({ data: "", htmlURL: "", penAuthor: "", penId: "" });
   const [screenWidth, setScreenWidth] = useState(0);
   const [iframeWidth, setIframeWidth] = useState(0);
 
@@ -98,7 +98,7 @@ const Dashboard = () => {
     }
 
     const {
-      data: { imageURL, metaDataURL },
+      data: { htmlURL, metaDataURL },
     } = await axios.post("/api/codepen/uploadData", {
       htmlData: iframeContent.data,
       userName: iframeContent.penAuthor,
@@ -108,7 +108,7 @@ const Dashboard = () => {
 
     setIframeContent((prevData) => ({
       ...prevData,
-      imageURL,
+      htmlURL,
       metaDataURL,
     }));
 

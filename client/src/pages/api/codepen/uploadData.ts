@@ -1,7 +1,10 @@
 import { NextApiHandler } from "next";
 import { Browser } from "puppeteer";
 import getBrowser from "../../../utils/getBrowser";
-import { create } from "ipfs-http-client";
+import pinataClient from "utils/pinataClient";
+import fs from "fs";
+import path from "path";
+import os from "os";
 
 const handler: NextApiHandler = async (req, res) => {
   if (req.method != "POST") {
@@ -26,12 +29,19 @@ const handler: NextApiHandler = async (req, res) => {
     return;
   }
 
-  const ipfs = create({
-    url: "https://ipfs.infura.io:5001/api/v0",
-  });
   let browser: Browser | null = null;
 
   try {
+    const timestamp = getTimeStamp();
+
+    await fs.promises.mkdir(path.resolve(os.tmpdir(), `codepens/`), {
+      recursive: true,
+    });
+    await fs.promises.writeFile(
+      path.resolve(os.tmpdir(), `codepens/${timestamp}.html`),
+      htmlData
+    );
+
     browser = await getBrowser();
     if (!browser) {
       throw new Error("Browser is null");
@@ -41,33 +51,36 @@ const handler: NextApiHandler = async (req, res) => {
     await page.setContent(htmlData, {
       waitUntil: "networkidle0",
     });
-    const screenshot = await page.screenshot();
+    await page.screenshot({
+      path: path.resolve(os.tmpdir(), `codepens/${timestamp}.png`),
+    });
+
     await browser.close();
     browser = null;
 
-    const ipfsHtmlUpload = await ipfs.add(Buffer.from(htmlData));
-    const ipfsImageUpload = await ipfs.add(screenshot);
-
-    const ipfsMetaUpload = await ipfs.add(
-      Buffer.from(
-        JSON.stringify({
-          name: NFTName,
-          description: `${NFTName} by ${userName}`,
-          attributes: [
-            {
-              trait_type: "Created By",
-              value: userName,
-            },
-          ],
-          image: `ipfs://${ipfsImageUpload.path}`,
-          animation_url: `ipfs://${ipfsHtmlUpload.path}`,
-        })
-      )
+    const pinataHTMLUpload = await pinataClient.pinFromFS(
+      path.resolve(os.tmpdir(), `codepens/${timestamp}.html`)
+    );
+    const pinataImageUpload = await pinataClient.pinFromFS(
+      path.resolve(os.tmpdir(), `codepens/${timestamp}.png`)
     );
 
+    const pinataMetaUpload = await pinataClient.pinJSONToIPFS({
+      name: NFTName,
+      description: `${NFTName} by ${userName}`,
+      attributes: [
+        {
+          trait_type: "Created By",
+          value: userName,
+        },
+      ],
+      image: `ipfs://${pinataImageUpload.IpfsHash}`,
+      animation_url: `ipfs://${pinataHTMLUpload.IpfsHash}`,
+    });
+
     res.status(200).json({
-      imageURL: ipfsImageUpload.path,
-      metaDataURL: ipfsMetaUpload.path,
+      htmlURL: pinataHTMLUpload.IpfsHash,
+      metaDataURL: pinataMetaUpload.IpfsHash,
     });
   } catch (error: any) {
     res.status(500).json({
@@ -80,5 +93,7 @@ const handler: NextApiHandler = async (req, res) => {
     }
   }
 };
+
+const getTimeStamp = () => Date.now();
 
 export default handler;
