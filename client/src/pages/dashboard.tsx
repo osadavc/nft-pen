@@ -6,7 +6,6 @@ import BgGradients from "../components/Common/BgGradients";
 import * as env from "../config";
 
 import { ethers } from "ethers";
-import web3 from "web3";
 import CodePenNFT from "../utils/CodePenNFT.json";
 import Modal from "../components/Common/Modal";
 import MintModal from "../components/Dashboard/MintModal";
@@ -18,6 +17,10 @@ import { IFrameContent } from "types/iframeContent";
 
 import addNewCodePenMutation from "graphql/codepens/mutations/addNewCodePen.gql";
 import { useMutation } from "@apollo/client";
+import {
+  AddNewCodePenMutation,
+  AddNewCodePenMutationVariables,
+} from "graphql/codepens/mutations/addNewCodePen.generated";
 
 const Dashboard = () => {
   const codePenURLInput = useRef<HTMLInputElement>(null);
@@ -38,7 +41,10 @@ const Dashboard = () => {
 
   const { walletError, setWalletError, switchToPolygon } = useMetamask();
 
-  const [addNewUser] = useMutation(addNewCodePenMutation);
+  const [addNewCodePen] = useMutation<
+    AddNewCodePenMutation,
+    AddNewCodePenMutationVariables
+  >(addNewCodePenMutation);
 
   useEffect(() => {
     window.addEventListener("resize", onResize);
@@ -101,6 +107,8 @@ const Dashboard = () => {
       return;
     }
 
+    nprogress.start();
+
     const {
       data: { htmlURL, metaDataURL },
     } = await axios.post("/api/codepen/uploadData", {
@@ -110,6 +118,8 @@ const Dashboard = () => {
       NFTName: iframeContent.penTitle,
     });
 
+    nprogress.inc();
+
     setIframeContent((prevData) => ({
       ...prevData,
       htmlURL,
@@ -117,6 +127,7 @@ const Dashboard = () => {
     }));
 
     const connection = contractRef.current?.connect(signerRef.current!);
+
     const result = await contractRef.current?.payToMint(
       connection?.address,
       metaDataURL,
@@ -124,8 +135,21 @@ const Dashboard = () => {
         value: ethers.utils.parseEther("0.0005"),
       }
     );
+    const nftId = await contractRef.current?.nftCount();
 
     await result.wait();
+    nprogress.inc();
+
+    await addNewCodePen({
+      variables: {
+        nftId: parseInt(nftId),
+        penAuthor: iframeContent.penAuthor,
+        penId: iframeContent.penId,
+        penTitle: iframeContent.penTitle,
+      },
+    });
+
+    nprogress.done();
   };
 
   return (

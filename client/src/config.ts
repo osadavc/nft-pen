@@ -6,7 +6,7 @@ let GOOGLE_CLIENT_SECRET;
 
 let NEXTAUTH_SECRET;
 
-let GRAPHQL_ENDPOINT;
+let NEXT_PUBLIC_GRAPHQL_ENDPOINT;
 let HASURA_ADMIN_KEY;
 
 try {
@@ -18,9 +18,11 @@ try {
 
   NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET;
 
-  GRAPHQL_ENDPOINT = process.env.GRAPHQL_ENDPOINT;
+  NEXT_PUBLIC_GRAPHQL_ENDPOINT = process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT;
   HASURA_ADMIN_KEY = process.env.HASURA_ADMIN_KEY;
-} catch (error) {}
+} catch (error) {
+  console.log(error);
+}
 
 export const pinataAPIKey = PINATA_API_KEY ?? "";
 export const pinataAPISecret = PINATA_API_SECRET ?? "";
@@ -30,7 +32,7 @@ export const googleClientSecret = GOOGLE_CLIENT_SECRET ?? "";
 
 export const nextauthSecret = NEXTAUTH_SECRET ?? "";
 
-export const graphqlEndpoint = GRAPHQL_ENDPOINT ?? "";
+export const graphqlEndpoint = NEXT_PUBLIC_GRAPHQL_ENDPOINT ?? "";
 export const hasuraAdminKey = HASURA_ADMIN_KEY ?? "";
 
 export const contractAddress =

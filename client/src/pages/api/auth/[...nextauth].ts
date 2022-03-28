@@ -75,6 +75,7 @@ export default NextAuth({
 
         return !!updatedUser.data?.insert_users_one?.id;
       } catch (error) {
+        console.log(error);
         return false;
       }
     },

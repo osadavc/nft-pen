@@ -5,6 +5,8 @@ import { getSession } from "next-auth/react";
 
 import * as env from "config";
 
+const isServer = () => typeof window === "undefined";
+
 const errorLink = onError(({ graphQLErrors }) => {
   if (graphQLErrors) {
     graphQLErrors.map(({ message }) => {
@@ -19,10 +21,18 @@ const authLink = setContext(async (_, { headers }: { headers: Headers }) => {
   const modifiedHeader = {
     headers: {
       ...headers,
-      authorization: session?.token ? `Bearer ${session.token}` : "",
-      "x-hasura-admin-secret": env.hasuraAdminKey,
     },
   };
+
+  if (isServer()) {
+    (modifiedHeader.headers as any)["x-hasura-admin-secret"] =
+      env.hasuraAdminKey;
+  } else {
+    (modifiedHeader.headers as any).authorization = session?.token
+      ? `Bearer ${session.token}`
+      : "";
+  }
+
   return modifiedHeader;
 });
 

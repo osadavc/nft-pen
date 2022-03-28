@@ -1,6 +1,6 @@
 overwrite: true
 schema:
-  - ${GRAPHQL_ENDPOINT}:
+  - ${NEXT_PUBLIC_GRAPHQL_ENDPOINT}:
       headers:
         "x-hasura-admin-secret": ${HASURA_ADMIN_KEY}
 documents: "src/graphql/**/*.gql"

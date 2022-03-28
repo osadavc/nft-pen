@@ -16,7 +16,7 @@
     "axios": "^0.26.1",
     "cheerio": "^1.0.0-rc.10",
     "dotenv": "^16.0.0",
-    "ethers": "^5.6.1",
+    "ethers": "^5.6.2",
     "graphql": "^16.3.0",
     "jsonwebtoken": "^8.5.1",
     "next": "latest",
@@ -24,8 +24,7 @@
     "nprogress": "^0.2.0",
     "puppeteer": "^13.5.1",
     "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "web3": "^1.7.1"
+    "react-dom": "^17.0.2"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "2.6.2",
