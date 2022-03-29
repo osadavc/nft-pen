@@ -44,8 +44,8 @@ const MintedPensModal = () => {
       )}
 
       <div className="mt-3 w-full space-y-2">
-        {data?.codepens.map(({ penAuthor, penTitle, nftId }) => (
-          <div className="w-full rounded bg-zinc-50 py-3 px-5">
+        {data?.codepens.map(({ penAuthor, penTitle, nftId, id }) => (
+          <div className="w-full rounded bg-zinc-50 py-3 px-5" key={id}>
             <h1>
               {penTitle} by {penAuthor}
             </h1>

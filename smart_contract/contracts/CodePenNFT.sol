@@ -11,7 +11,7 @@ contract CodePenNFT is ERC721, ERC721URIStorage, Ownable {
 
   Counters.Counter private _tokenIdCounter;
 
-  constructor() ERC721("CodePenNFT", "CPN") {}
+  constructor() ERC721("CodePenNFT", "COPN") {}
 
   mapping(string => uint8) existingURIs;
 
