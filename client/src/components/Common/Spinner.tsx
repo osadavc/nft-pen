@@ -1,13 +1,18 @@
 import { FC } from "react";
 
-const Spinner: FC = () => {
+interface SpinnerProps {
+  width?: number;
+  height?: number;
+}
+
+const Spinner: FC<SpinnerProps> = ({ width = 40, height = 40 }) => {
   return (
     <div className="flex w-full items-center justify-center">
       <svg
         className="text-zinc-300"
         viewBox="0 0 2400 2400"
-        width={40}
-        height={40}
+        width={width}
+        height={height}
       >
         <g
           strokeWidth={200}

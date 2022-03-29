@@ -1,0 +1,9 @@
+query GetCodePensByMe($userId: String!) {
+  codepens(where: { createdBy: { _eq: $userId } }) {
+    id
+    nftId
+    penAuthor
+    penId
+    penTitle
+  }
+}

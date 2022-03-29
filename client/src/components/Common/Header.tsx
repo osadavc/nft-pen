@@ -1,13 +1,18 @@
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import Button from "./Button";
 import { signIn, signOut, useSession } from "next-auth/react";
+import Modal from "./Modal";
+import MintedPensModal from "components/Dashboard/MintedPensModal";
 
 const Header = () => {
   const router = useRouter();
   const { data: session } = useSession();
 
   const isDashboard = router.pathname === "/dashboard";
+
+  const [isMintedPensModalOpen, setIsMintedPensModalOpen] = useState(false);
 
   return (
     <>
@@ -16,6 +21,13 @@ const Header = () => {
           NFT Pen
         </h1>
       </Link>
+
+      <Modal
+        isOpen={isMintedPensModalOpen}
+        setIsOpen={setIsMintedPensModalOpen}
+      >
+        <MintedPensModal />
+      </Modal>
 
       <div className="mt-5 flex space-x-3 from-teal-700 via-red-600 to-zinc-50">
         {!isDashboard ? (
@@ -52,7 +64,13 @@ const Header = () => {
             >
               Log Out
             </Button>
-            <Button onClick={() => {}}>Minted Pens</Button>
+            <Button
+              onClick={() => {
+                setIsMintedPensModalOpen((prevState) => !prevState);
+              }}
+            >
+              Minted Pens
+            </Button>
           </>
         )}
       </div>

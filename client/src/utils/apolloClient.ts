@@ -2,6 +2,7 @@ import { ApolloClient, InMemoryCache, HttpLink, from } from "@apollo/client";
 import { onError } from "@apollo/client/link/error";
 import { setContext } from "@apollo/client/link/context";
 import { getSession } from "next-auth/react";
+import toast from "react-hot-toast";
 
 import * as env from "config";
 
@@ -10,7 +11,7 @@ const isServer = () => typeof window === "undefined";
 const errorLink = onError(({ graphQLErrors }) => {
   if (graphQLErrors) {
     graphQLErrors.map(({ message }) => {
-      // TODO: Handle Errors
+      toast.error(message);
     });
   }
 });

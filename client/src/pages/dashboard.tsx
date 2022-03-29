@@ -13,11 +13,12 @@ import MintModal from "../components/Dashboard/MintModal";
 import useMetamask from "../hooks/useMetamask";
 import WalletInfoModal from "../components/Dashboard/WalletInfoModal";
 import { GetServerSideProps } from "next";
-import { getSession } from "next-auth/react";
+import { getSession, useSession } from "next-auth/react";
 import { IFrameContent } from "types/iframeContent";
 
 import { useLazyQuery, useMutation } from "@apollo/client";
 
+import getCodePensByMeQuery from "graphql/codepens/queries/getCodePensByMe.gql";
 import addNewCodePenMutation from "graphql/codepens/mutations/addNewCodePen.gql";
 import getMatchingCodePensQuery from "graphql/codepens/queries/getMatchingCodePens.gql";
 
@@ -29,8 +30,10 @@ import {
   GetMatchingCodePensQuery,
   GetMatchingCodePensQueryVariables,
 } from "graphql/codepens/queries/getMatchingCodePens.generated";
+import { GetCodePensByMeQuery } from "graphql/codepens/queries/getCodePensByMe.generated";
 
 const Dashboard = () => {
+  const { data: session } = useSession();
   const codePenURLInput = useRef<HTMLInputElement>(null);
 
   const contractRef = useRef<ethers.Contract | null>(null);
@@ -136,7 +139,7 @@ const Dashboard = () => {
 
         setTimeout(() => {
           return window.open(
-            `https://testnets.opensea.io/assets/mumbai/0x04d4cc7fae00065ebfd2422c064fa9615b18ec13/${data?.users[0].codepens[0].nftId}`
+            `https://testnets.opensea.io/assets/mumbai/${env.contractAddress}/${data?.users[0].codepens[0].nftId}`
           );
         }, 1000);
       }
@@ -178,6 +181,26 @@ const Dashboard = () => {
           penAuthor: iframeContent.penAuthor,
           penId: iframeContent.penId,
           penTitle: iframeContent.penTitle,
+        },
+        update: (cache, { data }) => {
+          const { insert_codepens_one } = data!;
+
+          const prevPens = cache.readQuery<GetCodePensByMeQuery>({
+            query: getCodePensByMeQuery,
+            variables: {
+              userId: session?.id as string,
+            },
+          });
+
+          cache.writeQuery<GetCodePensByMeQuery>({
+            query: getCodePensByMeQuery,
+            variables: {
+              userId: session?.id as string,
+            },
+            data: {
+              codepens: [...prevPens?.codepens!, insert_codepens_one!],
+            },
+          });
         },
       });
     } catch (error: any) {
