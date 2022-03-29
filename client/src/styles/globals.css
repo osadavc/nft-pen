@@ -27,6 +27,16 @@ body {
   background-color: #c7c7c7;
 }
 
+#nprogress .bar {
+  background: radial-gradient(
+    50% 50% at 50% 50%,
+    #ff0000 0%,
+    #00a3ff 100%
+  ) !important;
+  height: 3px !important;
+  filter: blur(3px);
+}
+
 input:focus {
   outline: none;
 }

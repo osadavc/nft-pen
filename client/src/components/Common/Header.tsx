@@ -5,6 +5,7 @@ import Button from "./Button";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Modal from "./Modal";
 import MintedPensModal from "components/Dashboard/MintedPensModal";
+import * as env from "config";
 
 const Header = () => {
   const router = useRouter();
@@ -51,7 +52,15 @@ const Header = () => {
                 Login With Google
               </Button>
             )}
-            <Button onClick={() => {}}>NFT Collection</Button>
+            <Button
+              onClick={() => {
+                window.open(
+                  `https://testnets.opensea.io/collection/${env.collectionName}`
+                );
+              }}
+            >
+              NFT Collection
+            </Button>
           </>
         ) : (
           <>

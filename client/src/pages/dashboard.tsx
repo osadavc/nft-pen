@@ -103,12 +103,15 @@ const Dashboard = () => {
       });
 
       setIframeContent({ data, penAuthor, penId, penTitle });
-
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data.message);
+      }
+    } finally {
+      // A hack to indicate user that the iframe is loading
       setTimeout(() => {
         nprogress.done();
       }, 500);
-    } catch (error: any) {
-      nprogress.done();
     }
   };
 
