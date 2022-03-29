@@ -32,6 +32,7 @@ import {
 } from "graphql/codepens/queries/getMatchingCodePens.generated";
 import { GetCodePensByMeQuery } from "graphql/codepens/queries/getCodePensByMe.generated";
 import { MintingStatus } from "types/mintingStatus";
+import NoMetamask from "components/Dashboard/NoMetamask";
 
 const Dashboard = () => {
   const { data: session } = useSession();
@@ -64,19 +65,21 @@ const Dashboard = () => {
     GetMatchingCodePensQueryVariables
   >(getMatchingCodePensQuery);
 
-  // FIXME: A problem with mobile layouts
-
   useEffect(() => {
     window.addEventListener("resize", onResize);
     setScreenWidth(window.innerWidth);
 
-    const provider = new ethers.providers.Web3Provider(window.ethereum as any);
-    signerRef.current = provider.getSigner();
-    contractRef.current = new ethers.Contract(
-      env.contractAddress,
-      CodePenNFT.abi,
-      signerRef.current
-    );
+    if (window.ethereum) {
+      const provider = new ethers.providers.Web3Provider(
+        window.ethereum as any
+      );
+      signerRef.current = provider.getSigner();
+      contractRef.current = new ethers.Contract(
+        env.contractAddress,
+        CodePenNFT.abi,
+        signerRef.current
+      );
+    }
 
     return () => {
       window.removeEventListener("resize", onResize);
@@ -222,6 +225,10 @@ const Dashboard = () => {
       setMintingStatus("FINISHED");
     }
   };
+
+  if (walletError == "no_wallet") {
+    return <NoMetamask />;
+  }
 
   return (
     <div className="flex flex-col items-center px-3 pt-8 capitalize">

@@ -33,7 +33,7 @@ const useMetamask = () => {
   }, []);
 
   useEffect(() => {
-    window.ethereum.on("chainChanged", (_chainId) => {
+    window?.ethereum?.on("chainChanged", (_chainId) => {
       if (parseInt(_chainId as string) != 80001) {
         setWalletError("wrong_network");
       } else {

@@ -96,6 +96,15 @@ const MintModal: FC<MintModalProps> = ({
                 Finally, Finished Minting The NFT
               </Dialog.Title>
 
+              <Dialog.Description
+                as="p"
+                className="mt-1 text-center capitalize"
+              >
+                If opensea shows it is not available or the details are not
+                loaded, please refresh the page or click the refresh button on
+                opensea
+              </Dialog.Description>
+
               {nftId && (
                 <button
                   className="mt-3 w-full rounded border border-gray-200 py-2 px-4 font-medium"
