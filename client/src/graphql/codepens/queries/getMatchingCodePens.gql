@@ -1,0 +1,18 @@
+query GetMatchingCodePens(
+  $penId: String!
+  $penAuthor: String!
+  $penTitle: String!
+) {
+  users {
+    codepens(
+      where: {
+        penId: { _eq: $penId }
+        penAuthor: { _eq: $penAuthor }
+        penTitle: { _eq: $penTitle }
+      }
+    ) {
+      id
+      nftId
+    }
+  }
+}

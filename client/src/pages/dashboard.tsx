@@ -4,6 +4,7 @@ import nprogress from "nprogress";
 import Header from "../components/Common/Header";
 import BgGradients from "../components/Common/BgGradients";
 import * as env from "../config";
+import toast from "react-hot-toast";
 
 import { ethers } from "ethers";
 import CodePenNFT from "../utils/CodePenNFT.json";
@@ -15,12 +16,19 @@ import { GetServerSideProps } from "next";
 import { getSession } from "next-auth/react";
 import { IFrameContent } from "types/iframeContent";
 
+import { useLazyQuery, useMutation } from "@apollo/client";
+
 import addNewCodePenMutation from "graphql/codepens/mutations/addNewCodePen.gql";
-import { useMutation } from "@apollo/client";
+import getMatchingCodePensQuery from "graphql/codepens/queries/getMatchingCodePens.gql";
+
 import {
   AddNewCodePenMutation,
   AddNewCodePenMutationVariables,
 } from "graphql/codepens/mutations/addNewCodePen.generated";
+import {
+  GetMatchingCodePensQuery,
+  GetMatchingCodePensQueryVariables,
+} from "graphql/codepens/queries/getMatchingCodePens.generated";
 
 const Dashboard = () => {
   const codePenURLInput = useRef<HTMLInputElement>(null);
@@ -45,6 +53,10 @@ const Dashboard = () => {
     AddNewCodePenMutation,
     AddNewCodePenMutationVariables
   >(addNewCodePenMutation);
+  const [getMatchingCodepens] = useLazyQuery<
+    GetMatchingCodePensQuery,
+    GetMatchingCodePensQueryVariables
+  >(getMatchingCodePensQuery);
 
   useEffect(() => {
     window.addEventListener("resize", onResize);
@@ -103,53 +115,76 @@ const Dashboard = () => {
   };
 
   const mintNFT = async () => {
-    if (!iframeContent.penTitle.trim() || !iframeContent.data) {
-      return;
-    }
-
-    nprogress.start();
-
-    const {
-      data: { htmlURL, metaDataURL },
-    } = await axios.post("/api/codepen/uploadData", {
-      htmlData: iframeContent.data,
-      userName: iframeContent.penAuthor,
-      penId: iframeContent.penId,
-      NFTName: iframeContent.penTitle,
-    });
-
-    nprogress.inc();
-
-    setIframeContent((prevData) => ({
-      ...prevData,
-      htmlURL,
-      metaDataURL,
-    }));
-
-    const connection = contractRef.current?.connect(signerRef.current!);
-
-    const result = await contractRef.current?.payToMint(
-      connection?.address,
-      metaDataURL,
-      {
-        value: ethers.utils.parseEther("0.0005"),
+    try {
+      if (!iframeContent.penTitle.trim() || !iframeContent.data) {
+        return;
       }
-    );
-    const nftId = await contractRef.current?.nftCount();
 
-    await result.wait();
-    nprogress.inc();
+      nprogress.start();
 
-    await addNewCodePen({
-      variables: {
-        nftId: parseInt(nftId),
-        penAuthor: iframeContent.penAuthor,
+      const { data } = await getMatchingCodepens({
+        variables: {
+          penAuthor: iframeContent.penAuthor,
+          penTitle: iframeContent.penTitle,
+          penId: iframeContent.penId,
+        },
+      });
+
+      if (data?.users[0].codepens.length! > 0) {
+        toast.error("This pen has already been minted");
+        setIsNFTModalOpen(false);
+
+        setTimeout(() => {
+          return window.open(
+            `https://testnets.opensea.io/assets/mumbai/0x04d4cc7fae00065ebfd2422c064fa9615b18ec13/${data?.users[0].codepens[0].nftId}`
+          );
+        }, 1000);
+      }
+
+      const {
+        data: { htmlURL, metaDataURL },
+      } = await axios.post("/api/codepen/uploadData", {
+        htmlData: iframeContent.data,
+        userName: iframeContent.penAuthor,
         penId: iframeContent.penId,
-        penTitle: iframeContent.penTitle,
-      },
-    });
+        NFTName: iframeContent.penTitle,
+      });
 
-    nprogress.done();
+      nprogress.inc();
+
+      setIframeContent((prevData) => ({
+        ...prevData,
+        htmlURL,
+        metaDataURL,
+      }));
+
+      const connection = contractRef.current?.connect(signerRef.current!);
+
+      const result = await contractRef.current?.payToMint(
+        connection?.address,
+        metaDataURL,
+        {
+          value: ethers.utils.parseEther("0.0005"),
+        }
+      );
+      const nftId = await contractRef.current?.nftCount();
+
+      await result.wait();
+      nprogress.inc();
+
+      await addNewCodePen({
+        variables: {
+          nftId: parseInt(nftId),
+          penAuthor: iframeContent.penAuthor,
+          penId: iframeContent.penId,
+          penTitle: iframeContent.penTitle,
+        },
+      });
+    } catch (error: any) {
+      console.log(error.message);
+    } finally {
+      nprogress.done();
+    }
   };
 
   return (
