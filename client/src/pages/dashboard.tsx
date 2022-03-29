@@ -61,21 +61,12 @@ const Dashboard = () => {
     GetMatchingCodePensQueryVariables
   >(getMatchingCodePensQuery);
 
-  useEffect(() => {
-    window.addEventListener("resize", onResize);
-
-    return () => {
-      window.removeEventListener("resize", onResize);
-    };
-  }, []);
-
   // FIXME: A problem with mobile layouts
 
   useEffect(() => {
+    window.addEventListener("resize", onResize);
     setScreenWidth(window.innerWidth);
-  }, []);
 
-  useEffect(() => {
     const provider = new ethers.providers.Web3Provider(window.ethereum as any);
     signerRef.current = provider.getSigner();
     contractRef.current = new ethers.Contract(
@@ -83,6 +74,10 @@ const Dashboard = () => {
       CodePenNFT.abi,
       signerRef.current
     );
+
+    return () => {
+      window.removeEventListener("resize", onResize);
+    };
   }, []);
 
   useEffect(() => {
