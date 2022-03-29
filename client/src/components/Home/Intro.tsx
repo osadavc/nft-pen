@@ -23,7 +23,13 @@ const Intro = () => {
       </div>
 
       <div className="relative mt-6 h-[500px] overflow-hidden rounded-md border border-zinc-300">
-        <Image src="/images/screenshot.png" layout="fill" />
+        <Image
+          src="/images/screenshot.png"
+          layout="fill"
+          className="h-full"
+          objectFit="cover"
+          objectPosition="left"
+        />
       </div>
     </div>
   );
