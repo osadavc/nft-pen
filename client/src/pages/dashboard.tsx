@@ -31,6 +31,7 @@ import {
   GetMatchingCodePensQueryVariables,
 } from "graphql/codepens/queries/getMatchingCodePens.generated";
 import { GetCodePensByMeQuery } from "graphql/codepens/queries/getCodePensByMe.generated";
+import { MintingStatus } from "types/mintingStatus";
 
 const Dashboard = () => {
   const { data: session } = useSession();
@@ -51,6 +52,8 @@ const Dashboard = () => {
   const [isNFTModalOpen, setIsNFTModalOpen] = useState(false);
 
   const { walletError, setWalletError, switchToPolygon } = useMetamask();
+  const [mintingStatus, setMintingStatus] = useState<MintingStatus>(null);
+  const [nftId, setNftId] = useState<number>();
 
   const [addNewCodePen] = useMutation<
     AddNewCodePenMutation,
@@ -116,12 +119,15 @@ const Dashboard = () => {
   };
 
   const mintNFT = async () => {
+    if (mintingStatus) return;
+
     try {
       if (!iframeContent.penTitle.trim() || !iframeContent.data) {
         return;
       }
 
       nprogress.start();
+      setMintingStatus("CHECKS");
 
       const { data } = await getMatchingCodepens({
         variables: {
@@ -134,6 +140,7 @@ const Dashboard = () => {
       if (data?.users[0].codepens.length! > 0) {
         toast.error("This pen has already been minted");
         setIsNFTModalOpen(false);
+        setMintingStatus(null);
 
         setTimeout(() => {
           return window.open(
@@ -141,6 +148,8 @@ const Dashboard = () => {
           );
         }, 1000);
       }
+
+      setMintingStatus("UPLOADING_DATA");
 
       const {
         data: { htmlURL, metaDataURL },
@@ -159,6 +168,8 @@ const Dashboard = () => {
         metaDataURL,
       }));
 
+      setMintingStatus("MINTING");
+
       const connection = contractRef.current?.connect(signerRef.current!);
 
       const result = await contractRef.current?.payToMint(
@@ -172,6 +183,9 @@ const Dashboard = () => {
 
       await result.wait();
       nprogress.inc();
+
+      setMintingStatus("FINISHING");
+      setNftId(parseInt(nftId));
 
       await addNewCodePen({
         variables: {
@@ -205,6 +219,7 @@ const Dashboard = () => {
       console.log(error.message);
     } finally {
       nprogress.done();
+      setMintingStatus("FINISHED");
     }
   };
 
@@ -218,6 +233,8 @@ const Dashboard = () => {
           mintNFT={mintNFT}
           iframeContent={iframeContent}
           setIframeContent={setIframeContent}
+          mintingStatus={mintingStatus}
+          nftId={nftId}
         />
       </Modal>
 

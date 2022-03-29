@@ -16,7 +16,7 @@ const Header = () => {
   const [isMintedPensModalOpen, setIsMintedPensModalOpen] = useState(false);
 
   return (
-    <>
+    <div className="z-50 flex flex-col items-center justify-center">
       <Link href="/">
         <h1 className="cursor-pointer select-none text-5xl font-bold">
           NFT Pen
@@ -83,7 +83,7 @@ const Header = () => {
           </>
         )}
       </div>
-    </>
+    </div>
   );
 };
 

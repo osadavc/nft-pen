@@ -1,4 +1,6 @@
+import Image from "next/image";
 import Button from "../Common/Button";
+import * as env from "config";
 
 const Intro = () => {
   return (
@@ -8,12 +10,21 @@ const Intro = () => {
       </h2>
 
       <div className="mt-4 flex items-center justify-center">
-        <Button onClick={() => {}} width={250}>
+        <Button
+          onClick={() => {
+            window.open(
+              `https://testnets.opensea.io/collection/${env.collectionName}`
+            );
+          }}
+          width={250}
+        >
           View The NFT Collection
         </Button>
       </div>
 
-      <div className="mt-6 h-[500px] rounded-md border border-zinc-300"></div>
+      <div className="relative mt-6 h-[500px] overflow-hidden rounded-md border border-zinc-300">
+        <Image src="/images/screenshot.png" layout="fill" />
+      </div>
     </div>
   );
 };
