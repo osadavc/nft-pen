@@ -23,6 +23,7 @@ const MyApp = ({
       <ApolloProvider client={apolloClient}>
         <Head>
           <title>NFT Pen | Mint Your Code Pens As NFTs</title>
+          <link rel="shortcut icon" href="favicon.png" type="image/x-icon" />
         </Head>
         <Component {...pageProps} />
         <Toaster position="bottom-right" />

@@ -32,7 +32,7 @@ const MintedPensModal = () => {
       </Dialog.Description>
 
       {loading && (
-        <div className="mt-2">
+        <div className="mt-4">
           <Spinner width={35} height={35} />
         </div>
       )}
