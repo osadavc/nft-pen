@@ -123,6 +123,10 @@ const Dashboard = () => {
 
   const mintNFT = async () => {
     if (mintingStatus) return;
+    if (!iframeContent.penTitle) {
+      toast.error("Enter a name for your NFT");
+      return;
+    }
 
     try {
       if (!iframeContent.penTitle.trim() || !iframeContent.data) {
